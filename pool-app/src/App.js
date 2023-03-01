@@ -2,23 +2,45 @@ import "./App.css";
 import Button from "./components/Button";
 import React, { useState } from "react";
 import PoolHallForm from "./components/PoolHallForm";
+import PoolHallsList from "./components/PoolHallsList";
 function App() {
   const [isEnterPoolHallInfoIsPressed, setIsEnterPoolHallInfoIsPressed] =
     useState(false);
 
   const [isFindPoolHallIsPressed, setIsFindPoolHallIsPressed] = useState(false);
+  const [bodyRec, setBodyRec] = useState([]);
 
   const whenEnterPoolHallInfoIsPressed = (isPressed) => {
     setIsEnterPoolHallInfoIsPressed(isPressed);
   };
 
   const whenFindPoolHallIsPressed = (isPressed) => {
+    fetchFromBackend();
     setIsFindPoolHallIsPressed(isPressed);
   };
 
   const cancelHandler = (isPressed) => {
     setIsEnterPoolHallInfoIsPressed(!isPressed);
     setIsFindPoolHallIsPressed(!isPressed);
+  };
+
+  const fetchFromBackend = () => {
+    fetch("http://localhost:8080/poolhall")
+      .then((response) => {
+        return response.json();
+      })
+      .then((poolHalls) => {
+        const result = poolHalls.list.map((poolHall) => {
+          return {
+            id: poolHall.name,
+            name: poolHall.name,
+            address: poolHall.address,
+            numberOfTables: poolHall.numberOfTables,
+          };
+        });
+        //console.log(result);
+        setBodyRec(result);
+      });
   };
 
   const enterPoolHall = (
@@ -47,7 +69,7 @@ function App() {
       {isFindPoolHallIsPressed && (
         <div>
           <Button name="Back" whenPressed={cancelHandler}></Button>
-          <h2>No Pool Hall Found </h2>
+          <PoolHallsList poolhalls={bodyRec} />
         </div>
       )}
     </div>
